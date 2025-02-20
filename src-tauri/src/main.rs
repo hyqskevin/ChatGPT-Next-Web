@@ -10,3 +10,8 @@ fn main() {
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
+
+#[tauri::command]
+fn log_message(message: String) {
+  println!("{}", message);
+}

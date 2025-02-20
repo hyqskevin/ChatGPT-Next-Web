@@ -96,10 +96,17 @@ export function fetch(url: string, options?: RequestInit): Promise<Response> {
         if (status >= 300) {
           setTimeout(close, 100);
         }
+        console.log('[Stream Fetch] Response:',{
+          request_id,
+          status,
+          statusText,
+          headers,
+        })
         return response;
       })
       .catch((e) => {
         console.error("stream error", e);
+        invoke('log_message', { message: `[Stream Fetch] Error: ${e.message}` });
         // throw e;
         return new Response("", { status: 599 });
       });
