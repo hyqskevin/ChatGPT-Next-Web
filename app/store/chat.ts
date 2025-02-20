@@ -4,7 +4,6 @@ import {
   safeLocalStorage,
   trimTopic,
 } from "../utils";
-import { invoke } from '@tauri-apps/api/tauri';
 import { indexedDBStorage } from "@/app/utils/indexedDB-storage";
 import { nanoid } from "nanoid";
 import type {
@@ -749,9 +748,13 @@ export const useChatStore = createPersistStore(
         const lastSummarizeIndex = session.messages.length;
 
         // 使用 Tauri 的 invoke 方法将日志信息发送到后端
-        invoke('log_message', {
-          message: `[Chat History] ${JSON.stringify(toBeSummarizedMsgs)} ${historyMsgLength} ${modelConfig.compressMessageLengthThreshold}`
-        });
+        window.__TAURI__?.invoke('log_to_backend', { message: `Summarizing chat history: ${JSON.stringify(toBeSummarizedMsgs)}, historyMsgLength: ${historyMsgLength}, compressMessageLengthThreshold: ${modelConfig.compressMessageLengthThreshold}` })
+          .then(() => {
+            console.log('Summary log message sent to backend');
+          })
+          .catch((error) => {
+            console.error('Failed to send summary log message to backend', error);
+          });
 
         console.log(
           "[Chat History] ",

@@ -1,8 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use tauri::Manager;
-use tauri::api::log::{LogTarget, LoggerBuilder};
-
 
 mod stream;
 
@@ -23,5 +21,5 @@ fn main() {
 
 #[tauri::command]
 fn log_message(message: String) {
-  tauri::api::log::info!("{}", message);
+  println!("{}", message);
 }
