@@ -55,6 +55,9 @@
         "all": true,
         "request": true,
         "scope": ["https://*", "http://*"]
+      },
+      "invoke": {
+        "all": true
       }
     },
     "bundle": {
