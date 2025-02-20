@@ -4,7 +4,7 @@ import {
   safeLocalStorage,
   trimTopic,
 } from "../utils";
-
+import { invoke } from '@tauri-apps/api/tauri';
 import { indexedDBStorage } from "@/app/utils/indexedDB-storage";
 import { nanoid } from "nanoid";
 import type {
@@ -749,11 +749,9 @@ export const useChatStore = createPersistStore(
         const lastSummarizeIndex = session.messages.length;
 
         // 使用 Tauri 的 invoke 方法将日志信息发送到后端
-        if (window.__TAURI__) {
-          window.__TAURI__.invoke('log_message', {
-            message: `[Chat History] ${JSON.stringify(toBeSummarizedMsgs)} ${historyMsgLength} ${modelConfig.compressMessageLengthThreshold}`
-          });
-        }
+        invoke('log_message', {
+          message: `[Chat History] ${JSON.stringify(toBeSummarizedMsgs)} ${historyMsgLength} ${modelConfig.compressMessageLengthThreshold}`
+        });
 
         console.log(
           "[Chat History] ",
