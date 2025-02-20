@@ -106,7 +106,6 @@ export function fetch(url: string, options?: RequestInit): Promise<Response> {
       })
       .catch((e) => {
         console.error("stream error", e);
-        invoke('log_message', { message: `[Stream Fetch] Error: ${e.message}` });
         // throw e;
         return new Response("", { status: 599 });
       });
