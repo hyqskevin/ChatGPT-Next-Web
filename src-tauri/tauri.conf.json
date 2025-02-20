@@ -115,6 +115,9 @@
         "hiddenTitle": true,
         "titleBarStyle": "Overlay"
       }
-    ]
+    ],
+    "logger": {
+      "level": "info"
+    }
   }
 }
