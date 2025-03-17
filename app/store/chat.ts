@@ -59,6 +59,7 @@ export type ChatMessage = RequestMessage & {
   isError?: boolean;
   id: string;
   model?: ModelType;
+  modelDisplayName?: string;
   tools?: ChatMessageTool[];
   audio_url?: string;
   isMcpResponse?: boolean;
@@ -148,6 +149,23 @@ function getSummarizeModel(
   }
 
   return [currentModel, providerName];
+}
+function getModelDisplayName(
+  model: ModelType,
+  providerName: ServiceProvider,
+): string | undefined {
+  const configStore = useAppConfig.getState();
+  const accessStore = useAccessStore.getState();
+  const allModel = collectModelsWithDefaultModel(
+    configStore.models,
+    [configStore.customModels, accessStore.customModels].join(","),
+    accessStore.defaultModel,
+  );
+
+  const matchedModel = allModel.find(
+    (m) => m.name === model && m.provider?.providerName === providerName,
+  );
+  return matchedModel ? matchedModel.displayName : undefined;
 }
 
 function countMessages(msgs: ChatMessage[]) {
@@ -436,6 +454,10 @@ export const useChatStore = createPersistStore(
           role: "assistant",
           streaming: true,
           model: modelConfig.model,
+          modelDisplayName: getModelDisplayName(
+            modelConfig.model,
+            modelConfig.providerName,
+          ),
         });
 
         // get recent messages
