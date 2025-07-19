@@ -2373,7 +2373,7 @@ function _Chat() {
       {showShortcutKeyModal && (
         <ShortcutKeyModal onClose={() => setShowShortcutKeyModal(false)} />
       )}
-    </>
+    </div>
   );
 }
 
