@@ -1787,6 +1787,7 @@ function _Chat() {
   };
 
   return (
+    <>
     <div
       className={styles.chat}
       key={session.id}
@@ -2328,7 +2329,7 @@ function _Chat() {
 	                  );
 	                })}
 	              </div>
-	            )}s
+	            )}
                 <IconButton
                   icon={<SendWhiteIcon />}
                   text={Locale.Chat.Send}
@@ -2373,7 +2374,7 @@ function _Chat() {
       {showShortcutKeyModal && (
         <ShortcutKeyModal onClose={() => setShowShortcutKeyModal(false)} />
       )}
-    </div>
+    </>
   );
 }
 
