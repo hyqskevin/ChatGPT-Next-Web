@@ -2328,8 +2328,7 @@ function _Chat() {
 	                  );
 	                })}
 	              </div>
-	            )}
-	          </div>
+	            )}s
                 <IconButton
                   icon={<SendWhiteIcon />}
                   text={Locale.Chat.Send}
