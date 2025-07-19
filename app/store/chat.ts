@@ -426,8 +426,8 @@ export const useChatStore = createPersistStore(
       async onUserInput(
         content: string,
         attachImages?: string[],
+        attachFiles?: UploadFile[],
         isMcpResponse?: boolean,
-	attachFiles?: UploadFile[],
       ) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
