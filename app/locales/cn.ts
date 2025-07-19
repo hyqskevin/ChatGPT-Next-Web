@@ -56,6 +56,8 @@ const cn = {
       FullScreen: "全屏",
       RefreshTitle: "刷新标题",
       RefreshToast: "已发送刷新标题请求",
+      Addanything: "添加任意内容",
+      AddanythingSub: "将任意文件拖拽到此处添加到对话中",
       Speech: "朗读",
       StopSpeech: "停止",
     },

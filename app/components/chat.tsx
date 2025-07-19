@@ -49,6 +49,7 @@ import ShortcutkeyIcon from "../icons/shortcutkey.svg";
 import McpToolIcon from "../icons/tool.svg";
 import HeadphoneIcon from "../icons/headphone.svg";
 import UploadDocIcon from "../icons/upload-doc.svg";
+import FileUploadIcon from "../icons/file-upload.svg";
 
 import {
   BOT_HELLO,
@@ -1744,10 +1745,67 @@ function _Chat() {
   }, [messages, chatStore, navigate, session]);
 
   const [showChatSidePanel, setShowChatSidePanel] = useState(false);
+  const [showDragOverlay, setShowDragOverlay] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setShowDragOverlay(true);
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    setShowDragOverlay(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setShowDragOverlay(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setShowDragOverlay(false);
+
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const imagesData: string[] = [];
+      setUploading(true);
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const dataUrl = await uploadImageRemote(file); // 上传文件
+          imagesData.push(dataUrl);
+        } catch (error) {
+          console.error("上传文件失败", error);
+        }
+      }
+
+      setAttachImages(imagesData);
+      setUploading(false);
+    }
+  };
 
   return (
-    <>
-      <div className={styles.chat} key={session.id}>
+    <div
+      className={styles.chat}
+      key={session.id}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <div
+        id="drag-overlay"
+        className={
+          showDragOverlay ? styles["drag-overlay-show"] : styles["drag-overlay"]
+        }
+      >
+        <span>
+          <FileUploadIcon />
+        </span>
+        <p>{Locale.Chat.Actions.Addanything}</p>
+        <span>{Locale.Chat.Actions.AddanythingSub}</span>
+      </div>
         <div className="window-header" data-tauri-drag-region>
           {isMobileScreen && (
             <div className="window-actions">
