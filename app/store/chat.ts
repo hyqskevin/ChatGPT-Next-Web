@@ -3,6 +3,7 @@ import {
   isDalle3,
   safeLocalStorage,
   trimTopic,
+  readFileContent,
 } from "../utils";
 import { indexedDBStorage } from "@/app/utils/indexedDB-storage";
 import { nanoid } from "nanoid";
@@ -10,6 +11,7 @@ import type {
   ClientApi,
   MultimodalContent,
   RequestMessage,
+  UploadFile,
 } from "../client/api";
 import { getClientApi } from "../client/api";
 import { ChatControllerPool } from "../client/controller";
@@ -425,6 +427,7 @@ export const useChatStore = createPersistStore(
         content: string,
         attachImages?: string[],
         isMcpResponse?: boolean,
+	attachFiles?: UploadFile[],
       ) {
         const session = get().currentSession();
         const modelConfig = session.mask.modelConfig;
@@ -433,16 +436,92 @@ export const useChatStore = createPersistStore(
         let mContent: string | MultimodalContent[] = isMcpResponse
           ? content
           : fillTemplateWith(content, modelConfig);
-
-        if (!isMcpResponse && attachImages && attachImages.length > 0) {
+	let displayContent: string | MultimodalContent[] = userContent;
+	displayContent = [
+          {
+            type: "text",
+            text: userContent,
+          },
+        ];
+        if (!isMcpResponse && attachFiles && attachFiles.length > 0) {
+          let fileContent = userContent + " Here are the files: \n";
+          for (let i = 0; i < attachFiles.length; i++) {
+            fileContent += attachFiles[i].name + "\n";
+            fileContent += await readFileContent(attachFiles[i]);
+          }
           mContent = [
-            ...(content ? [{ type: "text" as const, text: content }] : []),
-            ...attachImages.map((url) => ({
-              type: "image_url" as const,
-              image_url: { url },
-            })),
+            {
+              type: "text",
+              text: fileContent,
+            },
           ];
+          displayContent = displayContent.concat(
+            attachFiles.map((file) => {
+              return {
+                type: "file_url",
+                file_url: {
+                  url: file.url,
+                  name: file.name,
+                  tokenCount: file.tokenCount,
+                },
+              };
+            }),
+          );
+
+          if (attachImages && attachImages.length > 0) {
+            mContent = mContent.concat(
+              attachImages.map((url) => {
+                return {
+                  type: "image_url",
+                  image_url: {
+                    url: url,
+                  },
+                };
+              }),
+            );
+            displayContent = displayContent.concat(
+              attachImages.map((url) => {
+                return {
+                  type: "image_url",
+                  image_url: {
+                    url: url,
+                  },
+                };
+              }),
+            );
+          }
+        } else if (!isMcpResponse && attachImages && attachImages.length > 0) {
+          mContent = [
+            {
+              type: "text",
+              text: userContent,
+            },
+          ];
+          mContent = mContent.concat(
+            attachImages.map((url) => {
+              return {
+                type: "image_url",
+                image_url: {
+                  url: url,
+                },
+              };
+            }),
+          );
+          displayContent = displayContent.concat(
+            attachImages.map((url) => {
+              return {
+                type: "image_url",
+                image_url: {
+                  url: url,
+                },
+              };
+            }),
+          );
+        } else {
+          mContent = userContent;
+          displayContent = userContent;
         }
+
 
         let userMessage: ChatMessage = createMessage({
           role: "user",
@@ -469,7 +548,8 @@ export const useChatStore = createPersistStore(
         get().updateTargetSession(session, (session) => {
           const savedUserMessage = {
             ...userMessage,
-            content: mContent,
+            //content: mContent,
+            content: displayContent,
           };
           session.messages = session.messages.concat([
             savedUserMessage,
