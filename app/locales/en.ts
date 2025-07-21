@@ -55,6 +55,8 @@ const en: LocaleType = {
       Delete: "Delete",
       Edit: "Edit",
       FullScreen: "FullScreen",
+      Addanything: "Add anything",
+      AddanythingSub: "Drop any file here to add it to the conversation",
       RefreshTitle: "Refresh Title",
       RefreshToast: "Title refresh request sent",
       Speech: "Play",
