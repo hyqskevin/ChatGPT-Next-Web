@@ -955,6 +955,7 @@ export const useChatStore = createPersistStore(
                   get().onUserInput(
                     `\`\`\`json:mcp-response:${mcpRequest.clientId}\n${mcpResponse}\n\`\`\``,
                     [],
+		    [],
                     true,
                   );
                 })
