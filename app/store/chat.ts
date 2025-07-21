@@ -433,6 +433,7 @@ export const useChatStore = createPersistStore(
         const modelConfig = session.mask.modelConfig;
 
         // MCP Response no need to fill template
+	const userContent = fillTemplateWith(content, modelConfig);
         let mContent: string | MultimodalContent[] = isMcpResponse
           ? content
           : fillTemplateWith(content, modelConfig);
