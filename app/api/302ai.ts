@@ -111,6 +111,15 @@ async function request(req: NextRequest) {
   try {
     const res = await fetch(fetchUrl, fetchOptions);
 
+    // 克隆响应体用于日志打印
+    const resClone = res.clone();
+    try {
+      const text = await resClone.text();
+      console.log("[302.AI] 返回内容：", text);
+    } catch (e) {
+      console.log("[302.AI] 返回内容解析失败", e);
+    }
+
     // to prevent browser prompt for credentials
     const newHeaders = new Headers(res.headers);
     newHeaders.delete("www-authenticate");

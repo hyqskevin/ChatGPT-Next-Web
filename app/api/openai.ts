@@ -65,10 +65,14 @@ export async function handle(
     if (subpath === OpenaiPath.ListModelPath && response.status === 200) {
       const resJson = (await response.json()) as OpenAIListModelResponse;
       const availableModels = getModels(resJson);
+      console.log("[OpenAI] 返回模型列表：", availableModels); // 日志打印
       return NextResponse.json(availableModels, {
         status: response.status,
       });
     }
+    const cloned = response.clone();
+    const text = await cloned.text();
+    console.log("[OpenAI] 返回内容：", text);
 
     return response;
   } catch (e) {
