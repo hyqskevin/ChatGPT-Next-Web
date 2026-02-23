@@ -1,0 +1,81 @@
+FROM node:18-alpine AS base
+
+FROM base AS deps
+
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN yarn config set registry 'https://registry.npmmirror.com/'
+RUN yarn install
+
+FROM base AS builder
+
+RUN apk update && apk add --no-cache git
+
+ENV OPENAI_API_KEY=""
+ENV GOOGLE_API_KEY=""
+ENV CODE="hanamaki,crazy_8!123,wpx"
+ENV BYTEDANCE_API_KEY="726d42d3-7533-4b26-b4d7-90b9b3346d58"
+ENV ALIBABA_API_KEY="sk-169294af78ad45358be25fdf3b44d31b"
+ENV AI302_API_KEY="sk-L1Sg5XofqZLsJxSyM3H9MfLLqbAK0FQhbrA3puQad1HZ3yLZ"
+ENV AI302_URL="https://api.302ai.cn"
+ENV ENABLE_MCP="true"
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+RUN yarn build
+
+FROM base AS runner
+WORKDIR /app
+
+RUN apk add proxychains-ng
+
+ENV PROXY_URL="http://127.0.0.1:7890 user password"
+ENV OPENAI_API_KEY=""
+ENV GOOGLE_API_KEY=""
+ENV CODE="hanamaki,crazy_8!123,wpx"
+ENV BYTEDANCE_API_KEY="726d42d3-7533-4b26-b4d7-90b9b3346d58"
+ENV ALIBABA_API_KEY="sk-169294af78ad45358be25fdf3b44d31b"
+ENV AI302_API_KEY="sk-L1Sg5XofqZLsJxSyM3H9MfLLqbAK0FQhbrA3puQad1HZ3yLZ"
+ENV AI302_URL="https://api.302ai.cn"
+ENV ENABLE_MCP="true"
+ENV CUSTOM_MODELS="-all,+豆包Seed2.0@ByteDance=ep-20260215171206-sczzj,+DeepSeek-v3.2@ByteDance=ep-20260203124810-qskv5,+@ByteDance=bot-20250317191355-hrl42,+Doubao-seed-1.6@ByteDance=ep-20250807161743-dp6jm,+deepseek-r1@Alibaba,+qwq-32b@Alibaba,+qwen-omni-turbo@Alibaba
+"
+
+
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/server ./.next/server
+
+RUN mkdir -p /app/app/mcp && chmod 777 /app/app/mcp
+COPY --from=builder /app/app/mcp/mcp_config.default.json /app/app/mcp/mcp_config.json
+
+EXPOSE 3000
+
+CMD if [ -n "$PROXY_URL" ]; then \
+    export HOSTNAME="0.0.0.0"; \
+    protocol=$(echo $PROXY_URL | cut -d: -f1); \
+    host=$(echo $PROXY_URL | cut -d/ -f3 | cut -d: -f1); \
+    port=$(echo $PROXY_URL | cut -d: -f3); \
+    conf=/etc/proxychains.conf; \
+    echo "strict_chain" > $conf; \
+    echo "proxy_dns" >> $conf; \
+    echo "remote_dns_subnet 224" >> $conf; \
+    echo "tcp_read_time_out 15000" >> $conf; \
+    echo "tcp_connect_time_out 8000" >> $conf; \
+    echo "localnet 127.0.0.0/255.0.0.0" >> $conf; \
+    echo "localnet ::1/128" >> $conf; \
+    echo "[ProxyList]" >> $conf; \
+    echo "$protocol $host $port" >> $conf; \
+    cat /etc/proxychains.conf; \
+    proxychains -f $conf node server.js; \
+    else \
+    node server.js; \
+    fi

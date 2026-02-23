@@ -112,22 +112,6 @@ async function request(req: NextRequest) {
   try {
     const res = await fetch(fetchUrl, fetchOptions);
 
-    console.log("[ByteDance] Response status:", res.status);
-    console.log("[ByteDance] Response statusText:", res.statusText);
-    console.log(
-      "[ByteDance] Response headers:",
-      Object.fromEntries(res.headers.entries()),
-    );
-
-    // 克隆响应体用于日志打印
-    const resClone = res.clone();
-    try {
-      const text = await resClone.text();
-      console.log("[ByteDance] Response body:", text.substring(0, 500));
-    } catch (e) {
-      console.log("[ByteDance] Response body read failed", e);
-    }
-
     // to prevent browser prompt for credentials
     const newHeaders = new Headers(res.headers);
     newHeaders.delete("www-authenticate");
