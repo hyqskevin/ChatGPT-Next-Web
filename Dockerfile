@@ -8,9 +8,10 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN yarn config set registry 'https://registry.npmmirror.com/'
-RUN yarn install
-RUN yarn add bufferutil utf-8-validate
+RUN yarn config set registry 'https://registry.npmmirror.com/' && \
+    yarn config set registry 'https://registry.yarnpkg.com/' && \
+    yarn install && \
+    yarn add bufferutil utf-8-validate
 
 FROM base AS builder
 
