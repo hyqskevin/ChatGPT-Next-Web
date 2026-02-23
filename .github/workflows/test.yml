@@ -3,7 +3,7 @@ name: Run Tests
 on:
   push:
     branches:
-      - dev
+      - upload
     tags:
       - "!*"
   pull_request:

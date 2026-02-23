@@ -104,6 +104,9 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
       case ModelProvider.SiliconFlow:
         systemApiKey = serverConfig.siliconFlowApiKey;
         break;
+      case ModelProvider["302.AI"]:
+        systemApiKey = serverConfig.ai302ApiKey;
+        break;
       case ModelProvider.GPT:
       default:
         if (req.nextUrl.pathname.includes("azure/deployments")) {
@@ -114,7 +117,7 @@ export function auth(req: NextRequest, modelProvider: ModelProvider) {
     }
 
     if (systemApiKey) {
-      console.log("[Auth] use system api key");
+      console.log("[Auth] use system api key" , systemApiKey);
       req.headers.set("Authorization", `Bearer ${systemApiKey}`);
     } else {
       console.log("[Auth] admin did not provide an api key");
